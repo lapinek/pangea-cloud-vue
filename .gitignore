@@ -29,3 +29,6 @@ coverage
 
 # Secrets
 **/.env
+
+# Temporary files
+temp

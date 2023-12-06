@@ -7,5 +7,14 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  "globals": {
+    "process": "readonly",
+    "__dirname": "readonly",
+    "__filename": "readonly"
+  },
+  "rules": {
+    "vue/multi-word-component-names": "off",
+    "semi": [2, "never"]
   }
 }
