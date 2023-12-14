@@ -18,8 +18,8 @@ dotenv.config({ path: __dirname + '/../.env.local' })
  */
 const auditToken = process.env.PANGEA_AUDIT_TOKEN
 const auditConfig = new PangeaConfig({
-    domain: process.env.PANGEA_AUDIT_DOMAIN,
-    configID: process.env.PANGEA_AUDIT_CONFIG_ID
+  domain: process.env.PANGEA_AUDIT_DOMAIN,
+  configID: process.env.PANGEA_AUDIT_CONFIG_ID
 })
 const audit = new AuditService(auditToken, auditConfig)
 
@@ -29,7 +29,7 @@ const audit = new AuditService(auditToken, auditConfig)
  */
 const redactToken = process.env.PANGEA_REDACT_TOKEN
 const redactConfig = new PangeaConfig({
-    domain: process.env.PANGEA_REDACT_DOMAIN
+  domain: process.env.PANGEA_REDACT_DOMAIN
 })
 const redact = new RedactService(redactToken, redactConfig)
 
@@ -45,40 +45,51 @@ app.use(express.json())
  * Handle audit log POST from the SPA.
  */
 app.post('/audit-log', (req, res) => {
-    (async () => {
-        let data = req.body
-        /**
-         * Remove sensitive data from the log content.
-         */
-        const redactResponse = await redact.redactStructured(data)
-        if (redactResponse.success) {
-            data = redactResponse.result.redacted_data
-        } else {
-            data = {
-                message: `Failed to redact sensitive data: ${redactResponse.code} ${redactResponse.result}. Aborting.`
-            }
+  (async () => {
+    let data = req.body
+    /**
+     * Remove sensitive data from the log content.
+     */
+    try {
+      const redactResponse = await redact.redactStructured(data)
+      if (redactResponse.success) {
+        data = redactResponse.result.redacted_data
+        console.log('Redacted sensitive information from the log content.')
+      } else {
+        data = {
+          message: `Failed to redact sensitive data from the log content: ${redactResponse.code} ${redactResponse.result}. Aborting.`
         }
+      }
+    } catch (e) {
+      if (e instanceof PangeaErrors.APIError) {
+        console.log('Redact error:', e.summary, e.pangeaResponse)
+      } else {
+        // throw e
+        console.log('Node.js error:', e.message)
+      }
+    }
 
-        try {
-            console.log(`Logging: ${data.message}`)
-            /**
-             * Send a single audit log data.
-             * Other available methods are can be found in the API docs:
-             * @see {@link https://pangea.cloud/docs/api/audit/?focus=audit}
-             */
-            const logResponse = await audit.log(data, { verbose: true })
-            console.log(`Response: ${util.inspect(logResponse.result)}`)
-        } catch (err) {
-            if (err instanceof PangeaErrors.APIError) {
-                console.log(err.summary, err.pangeaResponse)
-            } else {
-                throw err
-            }
-        }
-    })()
-    res.send('Audit Log executed.')
+    try {
+      console.log(`Logging: ${data.message}`)
+      /**
+       * Send a single audit log data.
+       * Other available methods are can be found in the API docs:
+       * @see {@link https://pangea.cloud/docs/api/audit/?focus=audit}
+       */
+      const logResponse = await audit.log(data, { verbose: true })
+      console.log(`Response: ${util.inspect(logResponse.result)}`)
+    } catch (e) {
+      if (e instanceof PangeaErrors.APIError) {
+        console.log('Secure Audit Log error:', e.summary, e.pangeaResponse)
+      } else {
+        // throw e
+        console.log('Node.js error:', e.message)
+      }
+    }
+  })()
+  res.send('Audit Log executed.')
 })
 
 app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`)
+  console.log(`Listening on port ${PORT}`)
 })
