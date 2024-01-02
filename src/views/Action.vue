@@ -1,7 +1,7 @@
 <script setup>
 import Action from '../components/Action.vue'
 import { useRoute } from 'vue-router'
-import { postAuditLog } from '../composables/api'
+import { postAuditLog } from '../composables/postAuditLog'
 
 const route = useRoute()
 const data = {

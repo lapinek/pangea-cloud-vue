@@ -505,7 +505,7 @@ In addition, moving to the server side will allow us to use Pangea [Node.js SDK]
 
 As an abstract example, a component in the Vue.js application will call a function to submit data to the backend API:
 
-[src/composables/api.js#L1-L11](src/composables/api.js#L3-L21)
+[src/composables/postAuditLog.js#L1-L11](src/composables/postAuditLog.js#L3-L21)
 
 ```javascript
 const postAuditLog = async (data) => {
