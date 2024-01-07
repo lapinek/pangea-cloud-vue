@@ -93,21 +93,26 @@ The final Vue.js application will look similar to the following:
   [.env.local.example](.env.local.example)
 
   ```sh
+  # Pangea services
+  ## Secure Audit Log
   PANGEA_AUDIT_DOMAIN="aws.us.pangea.cloud"
   PANGEA_AUDIT_TOKEN="pts_zybrwxkyskqar7k6tawf4zzw2r6vjwub"
   PANGEA_AUDIT_CONFIG_ID="pci_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
+  ## Redact
   PANGEA_REDACT_DOMAIN="aws.us.pangea.cloud"
   PANGEA_REDACT_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-  # Client side
+  ## AuthN
+  ### Server side
+  PANGEA_AUTHN_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ### Client side
   VITE_PANGEA_AUTHN_CLIENT_TOKEN="pcl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   VITE_PANGEA_AUTHN_DOMAIN="aws.us.pangea.cloud"
-  VITE_PANGEA_AUTHN_LOGIN_URL="https://pdn-pcl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.login.aws.us.pangea.cloud"
+  VITE_PANGEA_AUTHN_LOGIN_URL="https://pdn-rxvgsidzavosetfolnkvaam2x3q5lx5f.login.aws.us.pangea.cloud"
   VITE_PANGEA_AUTHN_REDIRECT_URI="http://localhost:5173/redirect"
 
-  # Server side
-  PANGEA_AUTHN_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # API
+  VITE_API_URL="http://localhost"
+  VITE_API_PORT="3000"
   ```
 
   In the next steps, you will replace the crossed content with your Pangea project-specific values.
@@ -532,9 +537,12 @@ const postAuditLog = async (data) => {
 > ```javascript
 > ...
 > server: {
+>   /**
+>     * Add local proxy for the backend API in development.
+>     */
 >   proxy: {
 >     '/api': {
->       target: 'http://localhost:3000',
+>       target: `${ env.VITE_API_URL }:${ env.VITE_API_PORT }`,
 >       changeOrigin: true,
 >       rewrite: (path) => path.replace(/^\/api/, '')
 >     }

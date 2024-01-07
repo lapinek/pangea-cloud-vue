@@ -8,6 +8,9 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest'
   },
+  ignorePatterns : [
+    'dist'
+  ],
   "globals": {
     "process": "readonly",
     "__dirname": "readonly",

@@ -34,7 +34,7 @@ const redactConfig = new PangeaConfig({
 const redact = new RedactService(redactToken, redactConfig)
 
 const app = express()
-const PORT = process.env.port || 3000
+const PORT = process.env.port || process.env.VITE_API_PORT
 
 /**
  * Parse request body.
@@ -91,5 +91,5 @@ app.post('/audit-log', (req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
+  console.log(`Listening on port ${ PORT }`)
 })
