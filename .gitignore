@@ -28,7 +28,8 @@ coverage
 *.sw?
 
 # Secrets
-**/.env
+**/.env.*
+!**/*.example
 
 # Temporary files
 temp
