@@ -138,6 +138,14 @@ const redirect = async (route) => {
   }
 
   if (userinfo?.status === 'Success') {
+    /**
+     * Show full userinfo response.
+     */
+    console.log('userinfo', userinfo)
+
+    /**
+     * Construct user profile.
+     */
     const user = {
       email: userinfo.result.active_token.email,
       profile: userinfo.result.active_token.profile,
