@@ -102,9 +102,6 @@ The final Vue.js application will look similar to the following:
   PANGEA_REDACT_DOMAIN="aws.us.pangea.cloud"
   PANGEA_REDACT_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   ## AuthN
-  ### Server side
-  PANGEA_AUTHN_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  ### Client side
   VITE_PANGEA_AUTHN_CLIENT_TOKEN="pcl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   VITE_PANGEA_AUTHN_DOMAIN="aws.us.pangea.cloud"
   VITE_PANGEA_AUTHN_LOGIN_URL="https://pdn-rxvgsidzavosetfolnkvaam2x3q5lx5f.login.aws.us.pangea.cloud"
@@ -138,10 +135,6 @@ After you enabled and configured the AuthN service, navigate to Pangea Console >
 * `Domain` is the Pangea service domain.
 
   Use the `Domain` value to populate the `VITE_PANGEA_AUTHN_DOMAIN` variable in your newly created `.env.local`.
-
-* `Default Token` is a service-level access token that provides access to the entire AuthN service instance and should not be exposed on the client side of your application. You might need this token for performing general administration of the service; for example, terminating all sessions for a user. You can also use the service token to protect your API server that your SPA could be depended on.
-
-  Use the `Default Token` value to populate the `PANGEA_AUTHN_TOKEN` variable in your `.env.local`.
 
 * `Client Token` has limited access to the AuthN instance and can be stored and used in the browser. With the client token, your SPA can authorize calls for signing a user in, refreshing the user session, and terminating the user session on the Pangea server. The respective endpoints used for these calls are described in Pangea's API documentation:
 
