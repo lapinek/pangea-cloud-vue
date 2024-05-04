@@ -20,7 +20,7 @@ const isAuthenticated = async () => {
    */
   try {
     console.log('Introspecting user session on the authorization server.')
-    const response = await fetch('https://authn.aws.us.pangea.cloud/v2/client/session/list', {
+    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/list`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const refresh = async () => {
    */
   try {
     console.log('Refreshing user session on the authorization server.')
-    const response = await fetch('https://authn.aws.us.pangea.cloud/v2/client/session/refresh', {
+    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ const signOut = async () => {
   const pangeaSession = getLocalStorageItem('pangea-session')
   if (pangeaSession) {
     try {
-      const response = await fetch("https://authn.aws.us.pangea.cloud/v2/client/session/logout", {
+      const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
