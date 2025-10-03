@@ -1,5 +1,12 @@
-import { generateBase58, getLocalStorageItem, setLocalStorageItem } from '../utils'
+import { generateState, getLocalStorageItem, setLocalStorageItem } from '../utils'
 import { store } from '../store'
+
+console.log('environment', import.meta.env)
+
+const PANGEA_AUTHN_LOGIN_URL = import.meta.env.VITE_PANGEA_AUTHN_LOGIN_URL
+const PANGEA_DOMAIN = import.meta.env.VITE_PANGEA_DOMAIN
+const PANGEA_AUTHN_TOKEN = import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN
+const PANGEA_AUTHN_REDIRECT_URI = import.meta.env.VITE_PANGEA_AUTHN_REDIRECT_URI
 
 const isAuthenticated = async () => {
   const pangeaSession = getLocalStorageItem('pangea-session')
@@ -16,23 +23,23 @@ const isAuthenticated = async () => {
   }
 
   /**
-   * Introspect session on the authorization server.
+   * Introspect active token on the authorization server.
    */
   try {
     console.log('Introspecting user session on the authorization server.')
-    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/list`, {
+    const response = await fetch(`https://authn.${PANGEA_DOMAIN}/v2/client/token/check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN}`
+        'Authorization': `Bearer ${PANGEA_AUTHN_TOKEN}`
       },
       body: JSON.stringify({
         'token': pangeaSession.user.active_token.token
       })
     })
-    const result = await response.json()
-    if (result.status !== 'Success') {
-      console.log('Signed out on the authorization server.', result.status)
+    const responseBody = await response.json()
+    if (responseBody.status !== 'Success') {
+      console.log('Signed out on the authorization server.', responseBody.status)
       await signOut()
       return false
     }
@@ -60,27 +67,27 @@ const refresh = async () => {
    */
   try {
     console.log('Refreshing user session on the authorization server.')
-    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/refresh`, {
+    const response = await fetch(`https://authn.${PANGEA_DOMAIN}/v2/client/session/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN}`
+        'Authorization': `Bearer ${PANGEA_AUTHN_TOKEN}`
       },
       body: JSON.stringify({
         'refresh_token': pangeaSession.user.refresh_token.token
       })
     })
-    const result = await response.json()
-    if (result.status !== 'Success') {
-      console.log('Failed to refresh the session on the authorization server.', result.status)
+    const responseBody = await response.json()
+    if (responseBody.status !== 'Success') {
+      console.log('Failed to refresh the session on the authorization server.', responseBody.status)
       return false
     }
 
     pangeaSession.user = {
-      email: result.result.active_token.email,
-      profile: result.result.active_token.profile,
-      active_token: result.result.active_token,
-      refresh_token: result.result.refresh_token
+      email: responseBody.result.active_token.email,
+      profile: responseBody.result.active_token.profile,
+      active_token: responseBody.result.active_token,
+      refresh_token: responseBody.result.refresh_token
     }
     delete pangeaSession.user.active_token.email
     delete pangeaSession.user.active_token.profile
@@ -98,20 +105,15 @@ const refresh = async () => {
 }
 
 const signIn = () => {
-  const state = generateBase58(32)
-  localStorage.setItem('state', state)
+  generateState()
 
-  let localRedirectUri = import.meta.env.VITE_PANGEA_AUTHN_REDIRECT_URI
+  const query = new URLSearchParams("")
+  query.append("redirect_uri", PANGEA_AUTHN_REDIRECT_URI)
+  query.append("state", localStorage.getItem("state"))
 
-  const query = new URLSearchParams('')
-  query.append('redirect_uri', localRedirectUri)
-  query.append('state', localStorage.getItem('state'))
+  const redirectUri = `${PANGEA_AUTHN_LOGIN_URL}?${String(query)}`
 
-  const queryParams = query.toString()
-  const redirectTo = import.meta.env.VITE_PANGEA_AUTHN_LOGIN_URL
-  const url = queryParams ? `${redirectTo}?${queryParams}` : redirectTo
-
-  window.location.replace(url)
+  window.location.replace(redirectUri)
 }
 
 const redirect = async (route) => {
@@ -122,10 +124,10 @@ const redirect = async (route) => {
   }
   let userinfo
   try {
-    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/userinfo`, {
+    const response = await fetch(`https://authn.${PANGEA_DOMAIN}/v2/client/userinfo`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN}`,
+        'Authorization': `Bearer ${PANGEA_AUTHN_TOKEN}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -141,7 +143,7 @@ const redirect = async (route) => {
     /**
      * Show full userinfo response.
      */
-    console.log('userinfo', userinfo)
+    console.log('userinfo', structuredClone(userinfo))
 
     /**
      * Construct user profile.
@@ -160,7 +162,7 @@ const redirect = async (route) => {
       user
     }))
   } else {
-    return false
+    // return false
   }
   return true
 }
@@ -170,19 +172,19 @@ const signOut = async () => {
   const pangeaSession = getLocalStorageItem('pangea-session')
   if (pangeaSession) {
     try {
-      const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/session/logout`, {
+      const response = await fetch(`https://authn.${PANGEA_DOMAIN}/v2/client/session/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN}`
+          'Authorization': `Bearer ${PANGEA_AUTHN_TOKEN}`
         },
         body: JSON.stringify({
           'token': pangeaSession.user.active_token.token
         })
       })
-      const result = await response.json()
-      if (result.status !== 'Success') {
-        console.log('Failed to sign out on the authorization server.', result.status)
+      const responseBody = await response.json()
+      if (responseBody.status !== 'Success') {
+        console.log('Failed to sign out on the authorization server.', responseBody.status)
       }
     } catch (e) {
       console.log('Failed to sign out on the authorization server.', e.message)

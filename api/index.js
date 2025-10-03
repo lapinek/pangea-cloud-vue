@@ -18,7 +18,7 @@ dotenv.config({ path: __dirname + '/../.env.local' })
  */
 const auditToken = process.env.PANGEA_AUDIT_TOKEN
 const auditConfig = new PangeaConfig({
-  domain: process.env.PANGEA_AUDIT_DOMAIN,
+  domain: process.env.PANGEA_DOMAIN,
   configID: process.env.PANGEA_AUDIT_CONFIG_ID
 })
 const audit = new AuditService(auditToken, auditConfig)
@@ -29,7 +29,7 @@ const audit = new AuditService(auditToken, auditConfig)
  */
 const redactToken = process.env.PANGEA_REDACT_TOKEN
 const redactConfig = new PangeaConfig({
-  domain: process.env.PANGEA_REDACT_DOMAIN
+  domain: process.env.PANGEA_DOMAIN
 })
 const redact = new RedactService(redactToken, redactConfig)
 

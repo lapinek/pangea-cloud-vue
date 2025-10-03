@@ -94,16 +94,15 @@ The final Vue.js application will look similar to the following:
 
   ```sh
   # Pangea services
+  PANGEA_DOMAIN="aws.us.pangea.cloud"
   ## Secure Audit Log
-  PANGEA_AUDIT_DOMAIN="aws.us.pangea.cloud"
-  PANGEA_AUDIT_TOKEN="pts_zybrwxkyskqar7k6tawf4zzw2r6vjwub"
-  PANGEA_AUDIT_CONFIG_ID="pci_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  PANGEA_AUDIT_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  PANGEA_AUDIT_CONFIG_ID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   ## Redact
-  PANGEA_REDACT_DOMAIN="aws.us.pangea.cloud"
-  PANGEA_REDACT_TOKEN="pts_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  PANGEA_REDACT_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   ## AuthN
-  VITE_PANGEA_AUTHN_CLIENT_TOKEN="pcl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  VITE_PANGEA_AUTHN_DOMAIN="aws.us.pangea.cloud"
+  VITE_PANGEA_AUTHN_CLIENT_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  VITE_PANGEA_DOMAIN="aws.us.pangea.cloud"
   VITE_PANGEA_AUTHN_LOGIN_URL="https://pdn-rxvgsidzavosetfolnkvaam2x3q5lx5f.login.aws.us.pangea.cloud"
   VITE_PANGEA_AUTHN_REDIRECT_URI="http://localhost:5173/redirect"
 
@@ -134,7 +133,7 @@ After you enabled and configured the AuthN service, navigate to Pangea Console >
 
 * `Domain` is the Pangea service domain.
 
-  Use the `Domain` value to populate the `VITE_PANGEA_AUTHN_DOMAIN` variable in your newly created `.env.local`.
+  Use the `Domain` value to populate the `VITE_PANGEA_DOMAIN` variable in your newly created `.env.local`.
 
 * `Client Token` has limited access to the AuthN instance and can be stored and used in the browser. With the client token, your SPA can authorize calls for signing a user in, refreshing the user session, and terminating the user session on the Pangea server. The respective endpoints used for these calls are described in Pangea's API documentation:
 
@@ -168,7 +167,7 @@ After you enabled and configured the Secure Audit Log service, navigate to Pange
 
 <img alt="Secure Audit Log service overview in Pangea Console" src="README_files/pangea-secure-audit-log-overview.png" width="728" />
 
-* Use the `Domain` value to populate the `PANGEA_AUDIT_DOMAIN` variable in your `.env.local`.
+* Use the `Domain` value to populate the `PANGEA_DOMAIN` variable in your `.env.local`.
 
 * Use the `Default Token` value to populate the `PANGEA_AUDIT_TOKEN` variable in your `.env.local`.
 
@@ -186,7 +185,7 @@ After you enabled and configured the Redact service, navigate to Pangea Console 
 
 <img alt="Secure Audit Log service Overview in the Pangea Console." src="README_files/pangea-redact-overview.png" width="728">
 
-* Use the `Domain` value to populate the `PANGEA_REDACT_DOMAIN` variable in your `.env.local`.
+* Use the `Domain` value to populate the `PANGEA_DOMAIN` variable in your `.env.local`.
 
 * Use the `Default Token` value to populate the `PANGEA_REDACT_TOKEN` variable in your `.env.local`.
 
@@ -208,7 +207,7 @@ When a user wants to sign in, you can send them to the hosted login page. In the
 
 ```javascript
 const signIn = () => {
-  const state = generateBase58(32)
+  const state = generateState()
   localStorage.setItem('state', state) // 1
 
   let localRedirectUri = import.meta.env.VITE_PANGEA_AUTHN_REDIRECT_URI // 2
@@ -260,7 +259,7 @@ const redirect = async (route) => {
   }
   let userinfo
   try {
-    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_AUTHN_DOMAIN}/v2/client/userinfo`, { // 2
+    const response = await fetch(`https://authn.${import.meta.env.VITE_PANGEA_DOMAIN}/v2/client/userinfo`, { // 2
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${import.meta.env.VITE_PANGEA_AUTHN_CLIENT_TOKEN}`,
@@ -559,7 +558,7 @@ import { PangeaConfig, AuditService, PangeaErrors, RedactService } from 'pangea-
  */
 const auditToken = process.env.PANGEA_AUDIT_TOKEN // 1
 const auditConfig = new PangeaConfig({
-    domain: process.env.PANGEA_AUDIT_DOMAIN,
+    domain: process.env.PANGEA_DOMAIN,
     configID: process.env.PANGEA_AUDIT_CONFIG_ID
 })
 const audit = new AuditService(auditToken, auditConfig)
@@ -570,7 +569,7 @@ const audit = new AuditService(auditToken, auditConfig)
  */
 const redactToken = process.env.PANGEA_REDACT_TOKEN // 2
 const redactConfig = new PangeaConfig({
-    domain: process.env.PANGEA_REDACT_DOMAIN
+    domain: process.env.PANGEA_DOMAIN
 })
 const redact = new RedactService(redactToken, redactConfig)
 

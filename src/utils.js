@@ -7,11 +7,10 @@ const BASE58_ALPHABET =
   "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 /**
- * 
- * @param {number} length 
- * @returns 
+ * @param {number} length
+ * @returns
  */
-export const generateBase58 = (length) => {
+const generateBase58 = (length) => {
   let result = ""
   const setLength = BASE58_ALPHABET.length
   for (let i = 0; i < length; i++) {
@@ -21,11 +20,19 @@ export const generateBase58 = (length) => {
   return result
 }
 
+export const generateState = () => {
+  const state = generateBase58(32)
+
+  localStorage.setItem('state', state)
+
+  return localStorage.getItem('state')
+}
+
 /**
- * 
- * @param {string} key 
- * @param {string|object} value 
- * @returns 
+ *
+ * @param {string} key
+ * @param {string|object} value
+ * @returns
  */
 export const setLocalStorageItem = (key, value) => {
   try {
@@ -37,9 +44,9 @@ export const setLocalStorageItem = (key, value) => {
 }
 
 /**
- * 
- * @param {string} key 
- * @returns 
+ *
+ * @param {string} key
+ * @returns
  */
 export const getLocalStorageItem = (key) => {
   try {
@@ -47,8 +54,8 @@ export const getLocalStorageItem = (key) => {
     if (value) {
       return JSON.parse(value)
     }
-  } catch (e) { 
+  } catch (e) {
     return null
   }
-  
+
 }
